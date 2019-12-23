@@ -38,7 +38,7 @@ def build_model():
     
     return tf.keras.Model(inputs=inputs, outputs=soft)
 
-batch_size = 64
+batch_size = 128
 input_dim = 25*32
 units = 128
 output_size = 4
@@ -68,7 +68,12 @@ for sp in sess:
         y_train = emo_sep['label']
         y_train = le.fit_transform(y_train)
         # OVERSAMPLING
-        #x_train, y_train = SMOTE(random_state=4).fit_resample(x_train, y_train)
+        k=[]
+        for i in range(len(x_train)):
+            k.append(list(x_train[i].reshape(-1)))
+        k = np.array(k)
+        x_train = k
+        x_train, y_train = SMOTE(random_state=4).fit_resample(x_train, y_train)
         
         x_train = tf.convert_to_tensor(x_train)
         x_train = tf.reshape(x_train,[x_train.shape[0], 1, 200, 300])
@@ -90,13 +95,18 @@ for sp in sess:
         y_test = test_sep['label']
         y_test = le.fit_transform(y_test)
         # OVERSAMPLING
-        #x_test, y_test = SMOTE(random_state=4).fit_resample(x_test, y_test)
+        k = []
+        for i in range(len(x_test)):
+            k.append(list(x_test[i].reshape(-1)))
+        k = np.array(k)
+        x_test = k
+        x_test, y_test = SMOTE(random_state=4).fit_resample(x_test, y_test)
         
         x_test = tf.convert_to_tensor(x_test)
         x_test = tf.reshape(x_test,[x_test.shape[0], 1, 200, 300])
         
-        model_path = "/home/gnlenfn/remote/lstm/model/4emo/20hz/" + sp + "/"
-        log_path = "/home/gnlenfn/remote/lstm/log/4emo/20hz/"
+        model_path = "/home/gnlenfn/remote/lstm/model/4emo/20hz_over/" + sp + "/"
+        log_path = "/home/gnlenfn/remote/lstm/log/4emo/20hz_over/"
         createFolder(model_path)
         createFolder(log_path)
         
