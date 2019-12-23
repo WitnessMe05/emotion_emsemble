@@ -1,0 +1,8 @@
+log
+.ipynb_checkpoints
+__pycache__
+fail
+.vscode
+for_interactive.py
+*.h5
+*.pkl
