@@ -20,7 +20,7 @@ def createFolder(directory):
         print ('Error: Creating directory. ' +  directory)
         
 def build_model():
-    inputs = tf.keras.Input(shape=(1,200,300))
+    inputs = tf.keras.Input(shape=(1,400,300))
     conv1 = tf.keras.layers.Conv2D(16, 3, padding='same', activation=tf.nn.relu)(inputs)
     pool1 = tf.keras.layers.MaxPooling2D(padding='same')(conv1)
     conv2 = tf.keras.layers.Conv2D(24, 3, padding='same', activation=tf.nn.relu)(pool1)
@@ -28,8 +28,8 @@ def build_model():
     conv3 = tf.keras.layers.Conv2D(32, 3, padding='same', activation=tf.nn.relu)(pool2)
     pool3 = tf.keras.layers.MaxPooling2D(padding='same')(conv3)
     pool3_flat = tf.keras.layers.Flatten()(pool3)
-    #print(pool3_flat.shape)
-    reshaped = tf.keras.layers.Reshape((1,800))(pool3_flat)
+    print(pool3_flat.shape)
+    reshaped = tf.keras.layers.Reshape((1,1600))(pool3_flat)
     #print(reshaped.shape)
     lstm1 = tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(units, input_shape=(reshaped.shape[1]*reshaped.shape[2],32),return_sequences=True))(reshaped)
     linear1 = tf.keras.layers.Dense(64, activation=tf.nn.relu)(lstm1)
@@ -47,7 +47,7 @@ epochs = 100
 best_acc = []
 sess = ['Ses01', 'Ses02', 'Ses03', 'Ses04', 'Ses05']
 for sp in sess:
-    with gzip.open("/home/gnlenfn/remote/lstm/preprocess/spectrogram/norm_spec.pkl") as ifp:
+    with gzip.open("/home/gnlenfn/remote/lstm/preprocess/spectrogram/norm_1600_spec.pkl") as ifp:
         data = pickle.load(ifp)
 
         # TRAINING SET
@@ -67,16 +67,16 @@ for sp in sess:
         x_train = emo_sep['feature']
         y_train = emo_sep['label']
         y_train = le.fit_transform(y_train)
-        # OVERSAMPLING
-        k=[]
-        for i in range(len(x_train)):
-            k.append(list(x_train[i].reshape(-1)))
-        k = np.array(k)
-        x_train = k
-        x_train, y_train = SMOTE(random_state=4).fit_resample(x_train, y_train)
+        # # OVERSAMPLING
+        # k=[]
+        # for i in range(len(x_train)):
+        #     k.append(list(x_train[i].reshape(-1)))
+        # k = np.array(k)
+        # x_train = k
+        # x_train, y_train = SMOTE(random_state=4).fit_resample(x_train, y_train)
         
         x_train = tf.convert_to_tensor(x_train)
-        x_train = tf.reshape(x_train,[x_train.shape[0], 1, 200, 300])
+        x_train = tf.reshape(x_train,[x_train.shape[0], 1, 400, 300])
         
         # TEST SET
         test = data[data['speaker'] == sp]
@@ -94,19 +94,19 @@ for sp in sess:
         x_test = test_sep['feature']
         y_test = test_sep['label']
         y_test = le.fit_transform(y_test)
-        # OVERSAMPLING
-        k = []
-        for i in range(len(x_test)):
-            k.append(list(x_test[i].reshape(-1)))
-        k = np.array(k)
-        x_test = k
-        x_test, y_test = SMOTE(random_state=4).fit_resample(x_test, y_test)
+        # # OVERSAMPLING
+        # k = []
+        # for i in range(len(x_test)):
+        #     k.append(list(x_test[i].reshape(-1)))
+        # k = np.array(k)
+        # x_test = k
+        # x_test, y_test = SMOTE(random_state=4).fit_resample(x_test, y_test)
         
         x_test = tf.convert_to_tensor(x_test)
-        x_test = tf.reshape(x_test,[x_test.shape[0], 1, 200, 300])
+        x_test = tf.reshape(x_test,[x_test.shape[0], 1, 400, 300])
         
-        model_path = "/home/gnlenfn/remote/lstm/model/4emo/20hz_over/" + sp + "/"
-        log_path = "/home/gnlenfn/remote/lstm/log/4emo/20hz_over/"
+        model_path = "/home/gnlenfn/remote/lstm/model/4emo/10hz_over/" + sp + "/"
+        log_path = "/home/gnlenfn/remote/lstm/log/4emo/10hz_over/"
         createFolder(model_path)
         createFolder(log_path)
         
